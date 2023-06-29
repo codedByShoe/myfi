@@ -15,6 +15,7 @@
         integrity="sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis=" crossorigin="anonymous"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 
 <body class="font-sans antialiased">
@@ -170,6 +171,7 @@
             {{ $slot }}
         </main>
     </div>
+    @livewireScripts
     @stack('scripts')
 </body>
 
