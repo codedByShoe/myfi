@@ -2,44 +2,73 @@
 
 namespace App\Http\Livewire;
 
+use Carbon\Carbon;
 use App\Models\Event;
 use Livewire\Component;
 
 class Calendar extends Component
 {
-    public $events = '';
+    public $weeks;
+    public $currentDate;
 
-
-    public function getevent()
+    public function mount()
     {
-        $events = Event::select('id', 'title', 'start')->get();
-        return json_encode($events);
+        $this->currentDate = Carbon::now();
+        $this->generateCalendarWeeks();
     }
 
-    /**
-     * @return response()
-     **/
-    public function addevent($event)
+    public function generateCalendarWeeks()
     {
-        $input['title'] = $event['title'];
-        $input['start'] = $event['start'];
-        Event::create($input);
+        $startDate = $this->currentDate->startOfWeek()->copy();
+        $endDate = $this->currentDate->endOfWeek();
+
+        $currentDate = clone $startDate;
+        $weeks = [];
+
+        while ($currentDate->lte($endDate)) {
+            $week = [];
+
+            for ($i = 0; $i < 7; $i++) {
+                $events = $this->getEventsForDay($currentDate);
+                $week[] = [
+                    'date' => $currentDate->format('Y-m-d'),
+                    'current' => $currentDate->isToday(),
+                    'events' => $events
+                ];
+                $currentDate->addDay();
+            }
+
+            $weeks[] = $week;
+        }
+
+        $this->weeks = $weeks;
     }
 
-    /**
-     * @return response()
-     */
-    public function eventDrop($event, $oldEvent)
+    private function getEventsForDay($date)
     {
-        $eventdata = Event::find($event['id']);
-        $eventdata->start = $event['start'];
-        $eventdata->save();
+        $events = Event::where('date', $date->format('Y-m-d'))->get();
+        $recurringEvents = Event::where('recurring', true)
+            ->whereDay('date', $date->day)
+            ->get();
+
+        return $events->concat($recurringEvents);
+    }
+
+    public function previousWeek()
+    {
+        $this->currentDate->subWeek();
+        $this->generateCalendarWeeks();
+    }
+
+    public function nextWeek()
+    {
+        $this->currentDate->addWeek();
+        $this->generateCalendarWeeks();
     }
 
     public function render()
     {
         $events =  Event::select('id', 'title', 'start')->get();
-        $this->events = json_encode($events);
         return view('livewire.calendar');
     }
 }

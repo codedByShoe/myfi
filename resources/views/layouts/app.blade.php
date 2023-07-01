@@ -21,7 +21,7 @@
 <body class="font-sans antialiased">
     <div class="flex">
         <div
-            class="sticky top-0 flex flex-col justify-between w-16 h-screen bg-white border-gray-700 border-e dark:bg-gray-900">
+            class="sticky top-0 flex flex-col justify-between w-16 h-screen bg-white border-gray-700 border-e dark:bg-[#12181b]">
             <div>
                 <div class="inline-flex items-center justify-center w-16 h-16">
                     <a href="{{ route('dashboard') }}">
@@ -145,7 +145,7 @@
                 </div>
             </div>
 
-            <div class="sticky inset-x-0 bottom-0 p-2 bg-gray-900 border-t border-gray-700">
+            <div class="sticky inset-x-0 bottom-0 p-2 dark:bg-[#12181b] border-t border-gray-700">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <a onclick="event.preventDefault();
@@ -167,7 +167,7 @@
         </div>
 
         <!-- Page Content -->
-        <main class="w-full min-h-full dark:bg-gray-900">
+        <main class="w-full min-h-full dark:bg-[#12181b]">
             {{ $slot }}
         </main>
     </div>

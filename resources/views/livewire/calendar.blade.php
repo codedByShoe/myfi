@@ -1,64 +1,31 @@
- <div class="p-4 text-gray-900 dark:text-gray-100">
-     <div id="calendar"></div>
- </div>
+ <div>
+     <div class="p-4 calendar">
+         @foreach ($weeks as $week)
+             <div class="items-center justify-between mb-4 sm:flex">
+                 <h2 class="text-2xl font-semibold dark:text-white">Week of: {{ $week[0]['date'] }}</h2>
+                 <div class="navigation">
+                     <button class="px-4 py-1 text-white bg-[#25e35f] font-semibold mr-1"
+                         wire:click="previousWeek">Last</button>
+                     <button class="px-4 py-1 text-white bg-[#25e35f] font-semibold ml-1"
+                         wire:click="nextWeek">Next</button>
+                 </div>
+             </div>
 
- @push('scripts')
-     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
-     <script>
-         document.addEventListener('livewire:load', function() {
-             var Calendar = FullCalendar.Calendar;
-             var Draggable = FullCalendar.Draggable;
-             var calendarEl = document.getElementById('calendar');
-             var checkbox = document.getElementById('drop-remove');
-             var data = @this.events;
-             var calendar = new Calendar(calendarEl, {
-                 events: JSON.parse(data),
-                 dateClick(info) {
-                     var title = prompt('Enter Event Title');
-                     var date = new Date(info.dateStr + 'T00:00:00');
-                     if (title != null && title != '') {
-                         calendar.addEvent({
-                             title: title,
-                             start: date,
-                             allDay: true
-                         });
-                         var eventAdd = {
-                             title: title,
-                             start: date
-                         };
-                         @this.addevent(eventAdd);
-                         alert('Great. Now, update your database...');
-                     } else {
-                         alert('Event Title Is Required');
-                     }
-                 },
-                 editable: true,
-                 selectable: true,
-                 displayEventTime: false,
-                 droppable: true, // this allows things to be dropped onto the calendar
-                 drop: function(info) {
-                     // is the "remove after drop" checkbox checked?
-                     if (checkbox.checked) {
-                         // if so, remove the element from the "Draggable Events" list
-                         info.draggedEl.parentNode.removeChild(info.draggedEl);
-                     }
-                 },
-                 eventDrop: info => @this.eventDrop(info.event, info.oldEvent),
-                 loading: function(isLoading) {
-                     if (!isLoading) {
-                         // Reset custom events
-                         this.getEvents().forEach(function(e) {
-                             if (e.source === null) {
-                                 e.remove();
-                             }
-                         });
-                     }
-                 }
-             });
-             calendar.render();
-             @this.on(`refreshCalendar`, () => {
-                 calendar.refetchEvents()
-             });
-         });
-     </script>
- @endpush {{-- The Master doesn't talk, he acts. --}}
+             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                 @foreach ($week as $day)
+                     <div class=" rounded bg-[#2a2e35] p-1 h-44{{ $day['current'] ? ' current' : '' }}">
+                         <div class="text-center dark:text-white">{{ $day['date'] }}</div>
+                         <!-- Add your event content or any other information for the day here -->
+                         <div class="events">
+                             @if ($day['events']->isNotEmpty())
+                                 @foreach ($day['events'] as $event)
+                                     <span>{{ $event->title }}</span>
+                                 @endforeach
+                             @endif
+                         </div>
+                     </div>
+                 @endforeach
+             </div>
+         @endforeach
+     </div>
+ </div>
