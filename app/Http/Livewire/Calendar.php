@@ -8,67 +8,50 @@ use Livewire\Component;
 
 class Calendar extends Component
 {
-    public $weeks;
-    public $currentDate;
+    public $activeYear;
+    public $activeMonth;
+    public $activeDay;
+    public $events;
+    public $daysInMonth = 1;
 
-    public function mount()
+    public function mount($date = null)
     {
-        $this->currentDate = Carbon::now();
-        $this->generateCalendarWeeks();
+        $this->events = Event::all();
+        $this->activeYear = $date != null ? date('Y', strtotime($date)) : date('Y');
+        $this->activeMonth = $date != null ? date('m', strtotime($date)) : date('m');
+        $this->activeDay = $date != null ? date('d', strtotime($date)) : date('d');
     }
 
-    public function generateCalendarWeeks()
+    public function addEvent($txt, $date, $days = 1, $color = '')
     {
-        $startDate = $this->currentDate->startOfWeek()->copy();
-        $endDate = $this->currentDate->endOfWeek();
-
-        $currentDate = clone $startDate;
-        $weeks = [];
-
-        while ($currentDate->lte($endDate)) {
-            $week = [];
-
-            for ($i = 0; $i < 7; $i++) {
-                $events = $this->getEventsForDay($currentDate);
-                $week[] = [
-                    'date' => $currentDate->format('Y-m-d'),
-                    'current' => $currentDate->isToday(),
-                    'events' => $events
-                ];
-                $currentDate->addDay();
-            }
-
-            $weeks[] = $week;
-        }
-
-        $this->weeks = $weeks;
+        $color = $color ? ' ' . $color : $color;
+        // $this->events[] = [$txt, $date, $days, $color];
     }
 
-    private function getEventsForDay($date)
+    public function incrementDate()
     {
-        $events = Event::where('date', $date->format('Y-m-d'))->get();
-        $recurringEvents = Event::where('recurring', true)
-            ->whereDay('date', $date->day)
-            ->get();
-
-        return $events->concat($recurringEvents);
+        $formattedDate = $this->activeDay . '-' . $this->activeMonth + 1 . '-' . $this->activeYear;
+        $this->mount($formattedDate);
     }
 
-    public function previousWeek()
+    public function decrementDate()
     {
-        $this->currentDate->subWeek();
-        $this->generateCalendarWeeks();
-    }
-
-    public function nextWeek()
-    {
-        $this->currentDate->addWeek();
-        $this->generateCalendarWeeks();
+        $formattedDate = $this->activeDay . '-' . $this->activeMonth - 1 . '-' . $this->activeYear;
+        $this->mount($formattedDate);
     }
 
     public function render()
     {
-        $events =  Event::select('id', 'title', 'start')->get();
-        return view('livewire.calendar');
+        $numDays = date('t', strtotime($this->activeDay . '-' . $this->activeMonth . '-' . $this->activeYear));
+        $numDaysLastMonth = date('j', strtotime('last day of previous month', strtotime($this->activeDay . '-' . $this->activeMonth . '-' . $this->activeYear)));
+        $days = [0 => 'Sun', 1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat'];
+        $firstDayOfWeek = array_search(date('D', strtotime($this->activeYear . '-' . $this->activeMonth)), $days);
+
+        return view('livewire.calendar', [
+            'numDays' => $numDays,
+            'numDaysLastMonth' => $numDaysLastMonth,
+            'days' => $days,
+            'firstDayOfWeek' => $firstDayOfWeek,
+        ]);
     }
 }

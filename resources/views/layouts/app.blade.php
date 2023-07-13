@@ -18,10 +18,10 @@
     @livewireStyles
 </head>
 
-<body class="font-sans antialiased">
+<body class="font-sans antialiased dark:bg-[#12181b]">
     <div class="flex">
         <div
-            class="sticky top-0 flex flex-col justify-between w-16 h-screen bg-white border-gray-700 border-e dark:bg-[#12181b]">
+            class="fixed top-0 flex flex-col justify-between w-16 min-h-screen bg-white border-gray-700 border-e dark:bg-[#12181b]">
             <div>
                 <div class="inline-flex items-center justify-center w-16 h-16">
                     <a href="{{ route('dashboard') }}">
@@ -167,7 +167,7 @@
         </div>
 
         <!-- Page Content -->
-        <main class="w-full min-h-full dark:bg-[#12181b]">
+        <main class="w-full ml-16 min-h-full dark:bg-[#12181b]">
             {{ $slot }}
         </main>
     </div>
